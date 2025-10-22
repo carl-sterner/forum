@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Hem - Forum{% endblock %}
+
+{% block content %}
+  <h2>Välkommen till forumet</h2>
+  <p>diskutera med andra här</p>
+
+  {% if session.get('user_id') %}
+    <p>Du är inloggad. Här är alla diskussionstrådar</p>
+  {% else %}
+    <p>logga in för att delta i diskussioner</p>
+  {% endif %}
+{% endblock %}

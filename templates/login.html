@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Logga in - Forum{% endblock %}
+
+{% block content %}
+  <h2>Logga in</h2>
+
+  <form method="POST" action="{{ url_for('login') }}">
+    <div>
+      <label for="username">Användarnamn:</label>
+      <input type="text" id="username" name="username" required>
+    </div>
+
+    <div>
+      <label for="password">Lösenord:</label>
+      <input type="password" id="password" name="password" required>
+    </div>
+
+    <button type="submit">Logga in</button>
+  </form>
+
+  <p>Testanvändare: holros/foo, manfol/bar, goskor/baz</p>
+{% endblock %}

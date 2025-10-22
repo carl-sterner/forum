@@ -35,9 +35,11 @@ def init_db():
     
     #  npgra testanvändare
     users = [
-        {'admin','admin', 'Admin'}
+        ('holros', 'foo', 'Holger Rosell'),
+        ('manfol', 'bar', 'Manna Folke'),
+        ('goskor', 'baz', 'Gordon Skorpa')
     ]
-    
+
     for username, password, name in users:
         try:
             c.execute('INSERT INTO users (username, password, name) VALUES (?, ?, ?)',
