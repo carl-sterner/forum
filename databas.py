@@ -1,5 +1,10 @@
 import sqlite3
 
+def get_connection():
+    conn = sqlite3.connect('forum.db')
+    conn.row_factory = sqlite3.Row
+    return conn
+
 def init_db():
     conn = sqlite3.connect('forum.db')
     c = conn.cursor()
@@ -33,7 +38,7 @@ def init_db():
         FOREIGN KEY (user_id) REFERENCES users(id)
     )''')
     
-    #  npgra testanvändare
+    # några testanvändare
     users = [
         ('holros', 'foo', 'Holger Rosell'),
         ('manfol', 'bar', 'Manna Folke'),
@@ -50,6 +55,12 @@ def init_db():
     conn.commit()
     conn.close()
     print("Databasen initialiserad!")
+
+def get_user(username):
+    conn = get_connection()
+    user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
+    conn.close()
+    return dict(user) if user else None
 
 if __name__ == '__main__':
     init_db()
