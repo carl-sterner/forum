@@ -4,11 +4,28 @@
 
 {% block content %}
   <h2>Välkommen till forumet</h2>
-  <p>diskutera med andra här</p>
-
+  
   {% if session.get('user_id') %}
-    <p>Du är inloggad. Här är alla diskussionstrådar</p>
+    <p>Du är inloggad som {{ session.get('name') }}</p>
+    <a href="{{ url_for('new_topic') }}" class="button">Skapa ny tråd</a>
   {% else %}
-    <p>logga in för att delta i diskussioner</p>
+    <p>Logga in för att delta i diskussioner</p>
+  {% endif %}
+
+  <h3>Diskussionstrådar</h3>
+  
+  {% if topics %}
+    <div class="topics-list">
+      {% for topic in topics %}
+        <div class="topic-item">
+          <h4><a href="{{ url_for('view_topic', topic_id=topic.id) }}">{{ topic.title }}</a></h4>
+          <p class="topic-meta">
+            Startad av {{ topic.name }} den {{ topic.created_at[:10] }}
+          </p>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>Inga diskussionstrådar än. Var den första att skapa en!</p>
   {% endif %}
 {% endblock %}

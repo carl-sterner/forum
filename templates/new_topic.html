@@ -1,0 +1,21 @@
+
+{% extends "base.html" %}
+
+{% block title %}Ny tråd - Forum{% endblock %}
+
+{% block content %}
+  <div class="breadcrumb">
+    <a href="{{ url_for('index') }}">Hem</a> / Ny tråd
+  </div>
+
+  <h2>Skapa ny tråd</h2>
+
+  <form method="POST" action="{{ url_for('new_topic') }}">
+    <div>
+      <label for="title">Titel</label>
+      <input type="text" id="title" name="title" required />
+    </div>
+    <button type="submit" class="button">Skapa</button>
+    <a href="{{ url_for('index') }}" class="button-secondary">Avbryt</a>
+  </form>
+{% endblock %}

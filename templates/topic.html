@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}{{ topic.title }} - Forum{% endblock %}
+
+{% block content %}
+  <div class="breadcrumb">
+    <a href="{{ url_for('index') }}">Hem</a> / {{ topic.title }}
+  </div>
+
+  <div class="topic-header">
+    <h2>{{ topic.title }}</h2>
+    <p class="topic-meta">Startad av {{ topic.name }} den {{ topic.created_at[:16] }}</p>
+  </div>
+
+  <div class="posts-container">
+    {% if posts %}
+      {% for post in posts %}
+        <div class="post-item">
+          <div class="post-author">
+            <strong>{{ post.name }}</strong>
+            <span class="post-date">{{ post.created_at[:16] }}</span>
+          </div>
+          <div class="post-content">
+            {{ post.content }}
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>Inga inlägg än. Var den första att svara!</p>
+    {% endif %}
+  </div>
+
+  {% if session.get('user_id') %}
+    <div class="new-post-form">
+      <h3>Skriv ett svar</h3>
+      <form method="POST" action="{{ url_for('create_post_route', topic_id=topic.id)}}">
+        <div>
+          <textarea name="content" rows="5" required placeholder="Skriv ditt svar här..."></textarea>
+        </div>
+        <button type="submit">Skicka svar</button>
+      </form>
+    </div>
+  {% else %}
+    <p><a href="{{ url_for('login') }}">Logga in</a> för att svara i tråden.</p>
+  {% endif %}
+{% endblock %}

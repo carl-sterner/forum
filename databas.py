@@ -18,7 +18,7 @@ def init_db():
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )''')
     
-    #skapa topics tabell
+    # skapa topics tabell
     c.execute('''CREATE TABLE IF NOT EXISTS topics (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
@@ -27,7 +27,7 @@ def init_db():
         FOREIGN KEY (user_id) REFERENCES users(id)
     )''')
     
-    #skapa posts tabell
+    # skapa posts tabell
     c.execute('''CREATE TABLE IF NOT EXISTS posts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         content TEXT NOT NULL,
@@ -55,6 +55,62 @@ def init_db():
     conn.commit()
     conn.close()
     print("Databasen initialiserad!")
+
+def get_all_topics():
+    conn = get_connection()
+    topics = conn.execute('''
+        SELECT t.*, u.username, u.name 
+        FROM topics t 
+        JOIN users u ON t.user_id = u.id 
+        ORDER BY t.created_at DESC
+    ''').fetchall()
+    conn.close()
+    return [dict(topic) for topic in topics]
+
+def get_topic(topic_id):
+    conn = get_connection()
+    topic = conn.execute('''
+        SELECT t.*, u.username, u.name 
+        FROM topics t 
+        JOIN users u ON t.user_id = u.id 
+        WHERE t.id = ?
+    ''', (topic_id,)).fetchone()
+    conn.close()
+    return dict(topic) if topic else None
+
+def create_topic(title, user_id):
+    conn = get_connection()
+    cursor = conn.execute(
+        'INSERT INTO topics (title, user_id) VALUES (?, ?)',
+        (title, user_id)
+    )
+    topic_id = cursor.lastrowid
+    conn.commit()
+    conn.close()
+    return topic_id
+
+def create_post(content, topic_id, user_id):
+    conn = get_connection()
+    cursor = conn.execute(
+        'INSERT INTO posts (content, topic_id, user_id) VALUES (?, ?, ?)',
+        (content, topic_id, user_id)
+    )
+    post_id = cursor.lastrowid
+    conn.commit()
+    conn.close()
+    return post_id
+
+def get_posts(topic_id):
+    conn = get_connection()
+    posts = conn.execute('''
+        SELECT p.*, u.username, u.name 
+        FROM posts p 
+        JOIN users u ON p.user_id = u.id 
+        WHERE p.topic_id = ? 
+        ORDER BY p.created_at ASC
+    ''', (topic_id,)).fetchall()
+    conn.close()
+    return [dict(post) for post in posts]
 
 def get_user(username):
     conn = get_connection()
