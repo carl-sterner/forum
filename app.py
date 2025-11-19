@@ -1,5 +1,6 @@
 from flask import Flask, render_template, session, request, redirect, url_for, flash
-from databas import init_db, get_user, get_all_topics, get_topic, get_posts, create_topic, create_post
+from databas import init_db, get_user, get_all_topics, get_topic, get_posts, create_topic, create_post, get_user_by_id, update_user, create_user
+from werkzeug.security import check_password_hash
 
 app = Flask(__name__)
 app.secret_key = 'nyckel'
@@ -57,6 +58,69 @@ def new_topic():
     
     return render_template('new_topic.html')
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        name = request.form.get('name')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        password_confirm = request.form.get('password_confirm')
+
+        if password != password_confirm:
+            flash('Lösenorden matchar inte', 'error')
+            return render_template('register.html')
+
+        if len(username.strip()) == 0 or len(password.strip()) == 0:
+            flash('Användarnamn och lösenord krävs', 'error')
+            return render_template('register.html')
+
+        user_id = create_user(username, password, name, email)
+        if user_id is None:
+            flash('Användarnamnet är redan upptaget', 'error')
+            return render_template('register.html')
+
+        session['user_id'] = user_id
+        session['username'] = username
+        session['name'] = name
+        flash('Registrering lyckades! Du är nu inloggad.', 'success')
+        return redirect(url_for('index'))
+
+    return render_template('register.html')
+
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    if not session.get('user_id'):
+        flash('Du måste vara inloggad för att se profil', 'error')
+        return redirect(url_for('login'))
+
+    user = get_user_by_id(session['user_id'])
+
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        bio = request.form.get('bio')
+        password = request.form.get('password')
+        password_confirm = request.form.get('password_confirm')
+
+        if password and password != password_confirm:
+            flash('Lösenorden matchar inte', 'error')
+            return render_template('profile.html', user=user)
+
+        update_user(
+            user_id=session['user_id'],
+            name=name,
+            email=email,
+            bio=bio,
+            password=password if password else None
+        )
+
+        flash('Profil uppdaterad!', 'success')
+        session['name'] = name
+        return redirect(url_for('profile'))
+
+    return render_template('profile.html', user=user)
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -64,8 +128,8 @@ def login():
         password = request.form.get('password')
         
         user = get_user(username)
-        
-        if user and user['password'] == password:
+
+        if user and check_password_hash(user['password'], password):
             session['user_id'] = user['id']
             session['username'] = user['username']
             session['name'] = user['name']

@@ -1,4 +1,5 @@
 import sqlite3
+from werkzeug.security import generate_password_hash, check_password_hash
 
 def get_connection():
     conn = sqlite3.connect('forum.db')
@@ -15,6 +16,8 @@ def init_db():
         username TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
         name TEXT NOT NULL,
+        email TEXT,
+        bio TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )''')
     
@@ -117,6 +120,53 @@ def get_user(username):
     user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
     conn.close()
     return dict(user) if user else None
+
+def get_user_by_id(user_id):
+    conn = get_connection()
+    user = conn.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
+    conn.close()
+    return dict(user) if user else None
+
+def create_user(username, password, name, email=None):
+    conn = get_connection()
+    try:
+        hashed = generate_password_hash(password, method='pbkdf2:sha256')
+        cursor = conn.execute(
+            'INSERT INTO users (username, password, name, email) VALUES (?, ?, ?, ?)',
+            (username, hashed, name, email)
+        )
+        user_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+        return user_id
+    except sqlite3.IntegrityError:
+        conn.close()
+        return None
+
+def update_user(user_id, name=None, email=None, bio=None, password=None):
+    conn = get_connection()
+
+    current_user = conn.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
+    if not current_user:
+        conn.close()
+        return False
+
+    new_name = name if name is not None else current_user['name']
+    new_email = email if email is not None else current_user['email']
+    new_bio = bio if bio is not None else current_user['bio']
+
+    if password:
+        new_password = generate_password_hash(password, method='pbkdf2:sha256')
+    else:
+        new_password = current_user['password']
+
+    conn.execute(
+        'UPDATE users SET name = ?, email = ?, bio = ?, password = ? WHERE id = ?',
+        (new_name, new_email, new_bio, new_password, user_id)
+    )
+    conn.commit()
+    conn.close()
+    return True
 
 if __name__ == '__main__':
     init_db()

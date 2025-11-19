@@ -12,10 +12,12 @@
       <nav>
         <a href="{{ url_for('index') }}">Hem</a>
         {% if session.get('user_id') %}
+          <a href="{{ url_for('profile') }}">Min profil</a>
           Inloggad som: {{ session.get('username') }}
           <a href="{{ url_for('logout') }}">Logga ut</a>
         {% else %}
           <a href="{{ url_for('login') }}">Logga in</a>
+          <a href="{{ url_for('register') }}">Registrera</a>
         {% endif %}
       </nav>
     </header>

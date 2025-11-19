@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Profil - Forum{% endblock %}
+
+{% block content %}
+  <h2>Min profil</h2>
+
+  <div class="profile-info">
+    <p><strong>Användarnamn:</strong> {{ user.username }}</p>
+    <p><strong>Registrerad:</strong> {{ user.created_at[:10] }}</p>
+  </div>
+
+  <form method="POST" action="{{ url_for('profile') }}">
+    <div>
+      <label for="name">Namn:</label>
+      <input type="text" id="name" name="name" value="{{ user.name }}" required />
+    </div>
+
+    <div>
+      <label for="email">E‑post:</label>
+      <input type="text" id="email" name="email" value="{{ user.email }}" />
+    </div>
+
+    <div>
+      <label for="bio">Biografi:</label>
+      <textarea id="bio" name="bio" rows="4">{{ user.bio }}</textarea>
+    </div>
+
+    <div>
+      <label for="password">Nytt lösenord (valfritt):</label>
+      <input type="password" id="password" name="password" />
+    </div>
+
+    <div>
+      <label for="password_confirm">Bekräfta nytt lösenord:</label>
+      <input type="password" id="password_confirm" name="password_confirm" />
+    </div>
+
+    <button type="submit" class="button">Spara ändringar</button>
+    <a href="{{ url_for('index') }}" class="button-secondary">Tillbaka</a>
+  </form>
+{% endblock %}

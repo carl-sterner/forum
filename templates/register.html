@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Registrera - Forum{% endblock %}
+
+{% block content %}
+  <h2>Skapa konto</h2>
+
+  <form method="POST" action="{{ url_for('register') }}">
+    <div>
+      <label for="username">Användarnamn:</label>
+      <input type="text" id="username" name="username" required minlength="3">
+    </div>
+
+    <div>
+      <label for="name">Namn:</label>
+      <input type="text" id="name" name="name" required>
+    </div>
+
+    <div>
+      <label for="email">E-post (valfritt):</label>
+      <input type="text" id="email" name="email">
+    </div>
+
+    <div>
+      <label for="password">Lösenord:</label>
+      <input type="password" id="password" name="password" required minlength="3">
+    </div>
+
+    <div>
+      <label for="password_confirm">Bekräfta lösenord:</label>
+      <input type="password" id="password_confirm" name="password_confirm" required>
+    </div>
+
+    <button type="submit" class="button">Registrera</button>
+    <a href="{{ url_for('login') }}" class="button-secondary">Har redan konto</a>
+  </form>
+{% endblock %}
